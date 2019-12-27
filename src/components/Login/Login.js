@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 
+import { withRouter } from "react-router-dom";
 import { Formik, ErrorMessage, Form, Field } from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
+import qs from 'qs';
 
 class Login extends Component {
   constructor(props){
@@ -14,27 +16,31 @@ class Login extends Component {
   handleSubmit(values){
     console.log(values); 
       axios.request({
-        method: 'POST',
-        url: `http://localhost:9080/cadcli-backend/oauth/token`,
+        method: 'post',
+        url: 'http://localhost:9080/cadcli-backend/oauth/token',
         auth:{
           username: 'react',
           password: 're@ct0'
         },
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "Authorization": "Basic cmVhY3Q6cmVAY3Qw"
+          "Content-Type": "application/x-www-form-urlencoded;charset=utf8"
         },
-        data: JSON.stringify({
+        data: qs.stringify({
           'client': 'react',
-          'username': values.user,
-          'password': values.password,
+          'username': values.user+'',
+          'password': values.password+'',
           'grant_type': 'password'
         })
       }).then(
         function(response) {
-          console.log(response);
+          if(response.status === 200){
+            localStorage.setItem("token", response.data.access_token)
+            this.props.history.push('/home');
+          }else{
+            localStorage.removeItem("token")
+          }
           
-        }.bind(this)
+        }
       )
       .catch(function(error) {
         // handle error
@@ -72,4 +78,4 @@ class Login extends Component {
   }
 }
 
-export default Login
+export default withRouter(Login)
