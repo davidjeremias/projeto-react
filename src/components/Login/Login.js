@@ -1,20 +1,32 @@
 import React, { Component } from 'react'
 
 import { withRouter } from "react-router-dom";
-import { Formik, ErrorMessage, Form, Field } from 'formik';
-import * as yup from 'yup';
 import axios from 'axios';
 import qs from 'qs';
+
+import {Button} from 'primereact/button';
+import {InputText} from 'primereact/inputtext';
+import {Card} from 'primereact/card';
+import {Password} from 'primereact/password';
 
 class Login extends Component {
   constructor(props){
     super(props);
 
+    this.state = {
+      user: '',
+      password: '',
+      feedback: false
+    };
     this.handleSubmit = this.handleSubmit.bind(this);
+    // this.handleClick = this.handleClick.bind(this);
   }
 
-  handleSubmit(values){
-    console.log(values); 
+  handleClick = () =>{
+    this.props.history.push("/home");
+  };
+
+  handleSubmit(){
       axios.request({
         method: 'post',
         url: 'http://localhost:9080/cadcli-backend/oauth/token',
@@ -27,15 +39,14 @@ class Login extends Component {
         },
         data: qs.stringify({
           'client': 'react',
-          'username': values.user+'',
-          'password': values.password+'',
+          'username': this.state.user,
+          'password': this.state.password,
           'grant_type': 'password'
         })
-      }).then(
-        function(response) {
+      }).then((response) =>{
           if(response.status === 200){
             localStorage.setItem("token", response.data.access_token)
-            this.props.history.push('/home');
+            this.handleClick()
           }else{
             localStorage.removeItem("token")
           }
@@ -51,29 +62,29 @@ class Login extends Component {
       });
     
   }
-
-  validations = yup.object().shape({
-    user: yup.string().required(),
-    password: yup.string().min(6).required()
-  })
   
   render() {
+    const footer = <span>
+                    <Button label="Entrar" icon="pi pi-check" onClick={this.handleSubmit} style={{marginRight: '.25em'}}/>
+                  </span>;
     return (
-      <div className="Login">
-        <Formik initialValues={{}} onSubmit={this.handleSubmit} validationSchema={this.validations}>
-          <Form className="Form">
-            <div className="Form-Group">
-              <Field name="user" className="Form-Field"/>
-              <ErrorMessage component="span" name="user" className="Form-Error"/>
-            </div>
-            <div className="Form-Group">
-              <Field name="password" type="password" className="Form-Field"/>
-              <ErrorMessage component="span" name="password" className="Form-Error"/>
-            </div>
-            <button className="Form-Btn" type="submit">Login</button>
-          </Form>
-        </Formik>
-      </div>
+        <div className="p-card-subtitle">
+          <Card footer={footer} title="Login" subTitle="Acessar Cadastro de Clientes" style={{width: '360px'}}>
+              <div className="user">
+                <span className="p-float-label">
+                  <InputText id="user" value={this.state.user} onChange={(e) => this.setState({user: e.target.value})} autoComplete="off"/>
+                  <label htmlFor="user">Username</label>
+                </span>
+              </div>
+              
+              <div className="password">
+                <span className="p-float-label">
+                  <Password id="password" promptLabel="Digite sua senha" feedback={this.state.feedback} value={this.state.password} onChange={(e) => this.setState({password: e.target.value})} autoComplete="off"/>
+                  <label htmlFor="password">Password</label>
+                </span>
+              </div>
+          </Card>
+        </div>
     )
   }
 }
