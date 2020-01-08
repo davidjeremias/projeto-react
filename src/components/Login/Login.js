@@ -49,6 +49,9 @@ class Login extends Component {
       }).then((response) =>{
           if(response.status === 200){
             localStorage.setItem("token", response.data.access_token)
+            let jwtData = localStorage.getItem('token').split('.')[1]
+            let decodedJwtJsonData = atob(jwtData)
+            console.log(JSON.parse(decodedJwtJsonData).authorities[0]);
             this.handleClick()
           }else{
             localStorage.removeItem("token")

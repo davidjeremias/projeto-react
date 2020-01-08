@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {Menubar} from 'primereact/menubar';
+import {Button} from 'primereact/button';
 import { withRouter } from "react-router-dom";
 
 class Menu extends Component {
@@ -25,17 +26,51 @@ class Menu extends Component {
             }
          ]
     };
-    // this.navigateToPage = this.navigateToPage.bind(this);
-  } 
+
+    if(this.isComum()){
+      this.state.items.splice(1,1)
+    }
+
+    this.logon = this.logon.bind(this);
+    this.getName = this.getName.bind(this);
+  }
+
+  getName(){
+    let jwtData = localStorage.getItem('token').split('.')[1]
+    let decodedJwtJsonData = atob(jwtData)
+    return JSON.parse(decodedJwtJsonData).user_name
+  }
+
+  getAuthorities(){
+    let jwtData = localStorage.getItem('token').split('.')[1]
+    let decodedJwtJsonData = atob(jwtData)
+    return JSON.parse(decodedJwtJsonData).authorities[0]
+  }
+
+  isAdmin(){
+    return this.getAuthorities() === 'ROLE_ADMIN' ? true : false
+  }
+
+  isComum(){
+    return this.getAuthorities() === 'ROLE_USER' ? true : false
+  }
 
   navigateToPage = (path) => {
     this.props.history.push(path);  
   }
 
+  logon = () => {
+    localStorage.removeItem("token")
+    this.props.history.push("/");  
+  }
+
   render() {
     return (
       <div className="Menu">
-        <Menubar model={this.state.items}/>
+        <Menubar model={this.state.items}>
+          <span>Usuário: {this.getName()}</span>
+          <Button label="Sair" icon="pi pi-power-off" onClick={this.logon} style={{marginLeft:4}}/>
+        </Menubar>
       </div>
     )
   }
