@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 
-import Header from '../Header/Header';
-import Footer from '../Footer/Footer'
+// import Routes from '.';
+import Menu from '../Menu/Menu';
 
 class Home extends Component {
 
   render() {
     return (
       <div className="Home">
-        <Header></Header>
-        <Footer></Footer>
+        <Menu/>
+        {/* <Routes/> */}
       </div>
     )
   }

@@ -8,15 +8,18 @@ import {Button} from 'primereact/button';
 import {InputText} from 'primereact/inputtext';
 import {Card} from 'primereact/card';
 import {Password} from 'primereact/password';
+import {Dialog} from 'primereact/dialog';
+import {Messages} from 'primereact/messages';
 
 class Login extends Component {
   constructor(props){
     super(props);
-
+    localStorage.removeItem("token")
     this.state = {
       user: '',
       password: '',
-      feedback: false
+      feedback: false,
+      visible: true
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     // this.handleClick = this.handleClick.bind(this);
@@ -49,41 +52,54 @@ class Login extends Component {
             this.handleClick()
           }else{
             localStorage.removeItem("token")
+            this.showError()
           }
-          
         }
       )
-      .catch(function(error) {
+      .catch((error) =>{
         // handle error
-        console.log(error);
+        // console.log(error);
+        localStorage.removeItem("token")
+        this.showError()
       })
       .then(function() {
         // always executed
       });
-    
+  }
+
+  onHide() {
+    this.setState({visible: true});
+  }
+
+  showError() {
+    this.messages.show({ severity: 'error', life: 10000, detail: 'Username ou password inválido' });
   }
   
   render() {
-    const footer = <span>
-                    <Button label="Entrar" icon="pi pi-check" onClick={this.handleSubmit} style={{marginRight: '.25em'}}/>
-                  </span>;
     return (
         <div className="p-card-subtitle">
-          <Card footer={footer} title="Login" subTitle="Acessar Cadastro de Clientes" style={{width: '360px'}}>
-              <div className="user">
-                <span className="p-float-label">
-                  <InputText id="user" value={this.state.user} onChange={(e) => this.setState({user: e.target.value})} autoComplete="off"/>
-                  <label htmlFor="user">Username</label>
-                </span>
-              </div>
-              
-              <div className="password">
-                <span className="p-float-label">
-                  <Password id="password" promptLabel="Digite sua senha" feedback={this.state.feedback} value={this.state.password} onChange={(e) => this.setState({password: e.target.value})} autoComplete="off"/>
-                  <label htmlFor="password">Password</label>
-                </span>
-              </div>
-          </Card>
+          <Dialog header="Login" visible={this.state.visible} modal={false} closable={false} onHide={this.onHide} style={{marginTop: '-150px'}}>
+            <Messages ref={(el) => this.messages = el}></Messages>
+            <Card subTitle="Acessar Sistema de Clientes" style={{width: '360px'}}>
+                <div className="user" style={{paddingTop: '1em'}}>
+                  <span className="p-float-label">
+                    <InputText id="user" size="35" value={this.state.user} onChange={(e) => this.setState({user: e.target.value})} autoComplete="off"/>
+                    <label htmlFor="user">Username</label>
+                  </span>
+                </div>
+                
+                <div className="password" style={{paddingTop: '1.5em'}}>
+                  <span className="p-float-label">
+                    <Password id="password" size="35" promptLabel="Digite sua senha" feedback={this.state.feedback} value={this.state.password} onChange={(e) => this.setState({password: e.target.value})} autoComplete="off"/>
+                    <label htmlFor="password">Password</label>
+                  </span>
+                </div>
+
+                <div className="button" style={{paddingTop: '1em', marginLeft: '16em'}}>
+                  <Button label="Entrar" icon="pi pi-sign-in" onClick={this.handleSubmit}/>
+                </div>
+            </Card>
+          </Dialog>
         </div>
     )
   }
