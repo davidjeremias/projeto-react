@@ -52,7 +52,7 @@ class NovoCliente extends Component {
   }
 
   handleSubmit(){
-    Api.post('/oauth/token')
+    Api.post('/cliente')
       .then((response) =>{
           if(response.status === 200){
            
@@ -68,14 +68,18 @@ class NovoCliente extends Component {
   getEndereco(e){
     e.preventDefault();
     let cep = this.state.cep
-    console.log(cep);
+    
     Api.get('/endereco', {params: {cep: cep}})
       .then((response) =>{
           if(response.status === 200){
            this.setState(prevState => ({
              endereco: {
                ...prevState.endereco,
-               logradouro: response.data.enderecoDTO.logradouro
+               logradouro: response.data.logradouro,
+               complemento: response.data.complemento,
+               bairro: response.data.bairro,
+               cidade: response.data.localidade,
+               uf: response.data.uf
              }
            }))
           }
