@@ -4,6 +4,10 @@ import Api from '../service/Api'
 import {Panel} from 'primereact/panel';
 import {Button} from 'primereact/button';
 import {InputText} from 'primereact/inputtext';
+import {Dropdown} from 'primereact/dropdown';
+import {InputMask} from 'primereact/inputmask';
+import {DataTable} from 'primereact/datatable';
+import {Column} from 'primereact/column';
 
 class NovoCliente extends Component {
   constructor(props){
@@ -11,6 +15,8 @@ class NovoCliente extends Component {
 
     this.state = {
       cep:'',
+      isTelFixo: false,
+      isTelMovel: false,
       cliente: {
         nome: '',
         cpf: ''
@@ -44,11 +50,15 @@ class NovoCliente extends Component {
       },
       email: {
         email: ''
-      }
+      },
+      emails: []
     }
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.getEndereco = this.getEndereco.bind(this);
+    this.changeTipoTelefone = this.changeTipoTelefone.bind(this);
+    this.addEmail = this.addEmail.bind(this);
+    this.delEmail = this.delEmail.bind(this);
   }
 
   handleSubmit(){
@@ -63,6 +73,27 @@ class NovoCliente extends Component {
         // handle error
         console.log(error);
       });
+  }
+
+  changeTipoTelefone(){
+    console.log(this.state.telefone);
+    if(this.state.telefone.tipoTelefone === 'Residencial' || this.state.telefone.tipoTelefone === 'Comercial'){
+      this.setState({isTelFixo: true});
+      console.log('Fixo');
+    }
+    else if (this.state.telefone.tipoTelefone === 'Celular'){
+      this.setState({isTelFixo: true});
+      console.log('movel');
+    }
+  }
+  addEmail(e){
+    e.preventDefault();
+    this.state.emails.push(this.state.email);
+    this.setState({email: {email: ''}})
+  }
+  delEmail(e){
+    e.preventDefault();
+    console.log(e);
   }
 
   getEndereco(e){
@@ -92,6 +123,26 @@ class NovoCliente extends Component {
   }
 
   render() {
+    let telefone;
+
+    if(this.state.isTelFixo){
+      telefone = <div className="numeroTel p-3">
+                  <span className="p-float-label">
+                    <InputMask id="numeroTel" mask="(99) 9999-9999" value={this.state.telefone.numero} onChange={(e) => this.setState({telefone: {numero: e.target.value}})} />
+                    <label htmlFor="numeroTel">Número Telefone</label>
+                  </span>
+                </div>
+    }
+    if(this.state.isTelMovel){
+      telefone = <div className="numeroTel p-3">
+                  <span className="p-float-label">
+                    <InputMask id="numeroTel" mask="(99) 99999-9999" value={this.state.telefone.numero} onChange={(e) => this.setState({telefone: {numero: e.target.value}})} />
+                    <label htmlFor="numeroTel">Número Telefone</label>
+                  </span>
+                </div>
+    }
+      
+    
     return (
       <div className="NovoCliente container-fluid">
         <Panel header="Novo Cliente">
@@ -165,14 +216,36 @@ class NovoCliente extends Component {
             </Panel>
           
             <Panel header="Contato" className="p-3">
-      
+              <div className="row">
+                <div className="Telefone">
+                  <div className="tipoTelefone p-3">
+                    <Dropdown optionLabel="tipo" value={this.state.telefone.tipoTelefone} options={this.state.tipoTelefone} onChange={(e) => {this.setState({telefone: {tipoTelefone: e.value}}); this.changeTipoTelefone()}} placeholder="Tipo Telefone"/>
+                    {telefone}
+                  </div>
+                </div>
+
+                <div className="Email">
+                  <div className="email row p-3">
+                    <span className="p-float-label">
+                      <InputText id="email" size="24" value={this.state.email.email} onChange={(e) => this.setState({email: {email: e.target.value}})} />
+                      <label htmlFor="email">Email</label>
+                    </span>
+                    <Button label="Adiciona Email" icon="pi pi-sign-in" onClick={this.addEmail} />
+                  </div>
+                  <div className="table-email">
+                    <DataTable value={this.state.emails}>
+                      <Column field="email" header="Email" />
+                      <Column rowEditor={true} icon="pi pi-trash" onEditorSubmit={(e) => this.delEmail} header="Ações" onClick={this.delEmail}/>
+                    </DataTable>
+                  </div>
+                </div>
+
+              </div>
             </Panel>
 
             <div className="row p-3">
               <Button label="Salvar" icon="pi pi-sign-in" onClick={this.handleSubmit} />
             </div>
-
-            <span>{this.state.cliente.nome}</span>
           </form>
         </Panel>
       </div>
