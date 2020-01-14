@@ -51,7 +51,8 @@ class NovoCliente extends Component {
       email: {
         email: ''
       },
-      emails: []
+      emails: [],
+      idx: null
     }
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -59,6 +60,7 @@ class NovoCliente extends Component {
     this.changeTipoTelefone = this.changeTipoTelefone.bind(this);
     this.addEmail = this.addEmail.bind(this);
     this.delEmail = this.delEmail.bind(this);
+    this.actionTemplate = this.actionTemplate.bind(this);
   }
 
   handleSubmit(){
@@ -91,11 +93,13 @@ class NovoCliente extends Component {
     this.state.emails.push(this.state.email);
     this.setState({email: {email: ''}})
   }
-  delEmail(e){
-    e.preventDefault();
-    console.log(e);
+  delEmail(e, index){
+    this.setState({idx: index})
+    let retorno = this.state.emails.splice(this.state.idx, 1);
+    this.setState({emails: retorno})
+    this.setState({idx: null})
   }
-
+   
   getEndereco(e){
     e.preventDefault();
     let cep = this.state.cep
@@ -121,6 +125,13 @@ class NovoCliente extends Component {
         console.log(error);
       });
   }
+
+  actionTemplate(rowData, column) {
+    let index = column.rowIndex;
+    return <div>
+        <Button type="button" onClick={(e) => this.delEmail(e, {index})} icon="pi pi-trash" className="p-button-danger" style={{marginRight: '.5em'}}></Button>
+    </div>;
+}
 
   render() {
     let telefone;
@@ -235,7 +246,7 @@ class NovoCliente extends Component {
                   <div className="table-email">
                     <DataTable value={this.state.emails}>
                       <Column field="email" header="Email" />
-                      <Column rowEditor={true} icon="pi pi-trash" onEditorSubmit={(e) => this.delEmail} header="Ações" onClick={this.delEmail}/>
+                      <Column body={this.actionTemplate} style={{textAlign:'center', width: '8em'}} header="Ações" />
                     </DataTable>
                   </div>
                 </div>
